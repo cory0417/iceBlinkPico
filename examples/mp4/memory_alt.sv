@@ -102,7 +102,7 @@ module memory #(
         .write_enable   (mem_write_enable0), 
         .write_address  (write_address[12:2]), 
         .write_data     (mem_write_data0), 
-        .read_enable    (mem_read_enable), 
+        .read_enable    (1'b1), 
         .read_address   (read_address[12:2]), 
         .read_data      (mem_read_data0)
     );
@@ -114,7 +114,7 @@ module memory #(
         .write_enable   (mem_write_enable1), 
         .write_address  (write_address[12:2]), 
         .write_data     (mem_write_data1), 
-        .read_enable    (mem_read_enable), 
+        .read_enable    (1'b1), 
         .read_address   (read_address[12:2]), 
         .read_data      (mem_read_data1)
     );
@@ -126,7 +126,7 @@ module memory #(
         .write_enable   (mem_write_enable2), 
         .write_address  (write_address[12:2]), 
         .write_data     (mem_write_data2), 
-        .read_enable    (mem_read_enable), 
+        .read_enable    (1'b1), 
         .read_address   (read_address[12:2]), 
         .read_data      (mem_read_data2)
     );
@@ -138,13 +138,15 @@ module memory #(
         .write_enable   (mem_write_enable3), 
         .write_address  (write_address[12:2]), 
         .write_data     (mem_write_data3), 
-        .read_enable    (mem_read_enable), 
+        .read_enable    (1'b1), 
         .read_address   (read_address[12:2]), 
         .read_data      (mem_read_data3)
     );
 
     // Handle memory reads
-    assign mem_read_enable = (read_address[31:13] == 19'd0);
+    logic is_mem_read;
+    assign is_mem_read = (read_address[31:13] == 19'd0);
+    always_ff @(posedge clk) mem_read_enable <= is_mem_read;  // Buffer read enable signal
     assign read_val = mem_read_enable ? { mem_read_data3, mem_read_data2, mem_read_data1, mem_read_data0 } : read_value;
 
     always_ff @(posedge clk) begin
@@ -393,7 +395,7 @@ module memory_array #(
         end
         else begin
             for (i = 0; i < 2048; i++) begin
-                memory[i] <= 8'd0;
+                memory[i] = 8'd0;
             end
         end
     end
